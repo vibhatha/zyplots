@@ -61,19 +61,20 @@ class GraphProcessor:
     def plot(self, datasets=None, labels=None, hatches=None,
              colors=None,
              xlabel=None, ylabel=None, xticks=None,
-             title=None, xlabelfontsize=None, xlabelfontweight=None,
-             ylabelfontsize=None, ylabelfontweight=None,
-             yticksfontsize=None, yticksfontweight=None,
-             xticksfontsize=None, xticksfontweight=None,
-             titlefontsize=None,
-             titlefontweight=None,
+             title=None, xlabelfontsize=12, xlabelfontweight='medium',
+             ylabelfontsize=12, ylabelfontweight='medium',
+             yticksfontsize=12, yticksfontweight='medium',
+             xticksfontsize=12, xticksfontweight='medium',
+             titlefontsize=12,
+             titlefontweight='bold',
              xtick_positions=None,
-             legendfontweight=None, legendfontsize=None,
-             y_max=None):
+             legendfontweight='bold', legendfontsize=16,
+             y_max=None,
+             fig_size=(24, 12)):
         # BLAS
         x = np.arange(len(xticks))
         print(x)
-        fig, ax = plt.subplots(figsize=(24, 12))
+        fig, ax = plt.subplots(figsize=fig_size)
         # ax.set_yscale('log')
         count = 0
 

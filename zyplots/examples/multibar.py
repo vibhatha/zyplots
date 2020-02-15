@@ -2,6 +2,7 @@ import numpy as np
 
 from zyplots.data.DataLoader import DataLoader
 from zyplots.core.GraphProcessor import GraphProcessor
+from zyplots.util.DataUtil import DataUtil
 
 data_dir = "/home/vibhatha/github/TimelineGraphTool/data/resnet/resnet_split60_timeline_withheader.csv"
 
@@ -19,18 +20,17 @@ usecols = ['split_id', 'seq1_time', 'c0_c1_copy_time', 'seq2_time', 'seq_fc_time
 datacols = ['seq1_time', 'c0_c1_copy_time', 'seq2_time', 'seq_fc_time']
 index_col = False
 
-dataframe = data_loader.read_as_pandas_from_columns(columns=usecols, data_types=dtype)
+records = 60
+skiprows = DataUtil.get_skiprows(filter=[0, 1, 2, 5, 15, 16, 17, 43, 44, 45, 57, 58, 59], records=records)
+
+print(skiprows)
+
+dataframe = data_loader.read_as_pandas_from_columns(columns=usecols, data_types=dtype, filter=skiprows)
+
+print(dataframe.shape)
 
 gp = GraphProcessor(dataframe=dataframe, cols=datacols)
 
-# print(dataframe.head())
-
-# local_data_java_datasets = [avg_times_ijcnn1_local_blas, avg_times_ijcnn1_local_no_blas,
-#                             avg_times_webspam_local_blas, avg_times_webspam_local_no_blas,
-#                             avg_times_epsilon_local_blas, avg_times_epsilon_local_no_blas]
-# local_error_java_datasets = [error_times_ijcnn1_local_blas, error_times_ijcnn1_local_no_blas,
-#                              error_times_webspam_local_blas, error_times_webspam_local_no_blas,
-#                              error_times_epsilon_local_blas, error_times_ijcnn1_local_no_blas]
 labels = ['Seq1', 'Copy', 'Seq2', 'FC']
 colors = ['green', 'blue', 'orange', 'cyan']
 hatches = ['xx', '###', '---', '+']
@@ -38,7 +38,7 @@ ecolors = ['red', 'red', 'red', 'red']
 xlabel = 'Split Sub Id'
 ylabel = 'Time(s)'
 title = ''
-default_font_size = 44
+default_font_size = 14
 xlabelfontsize = default_font_size
 xlabelfontweight = 'bold'
 ylabelfontsize = default_font_size
@@ -49,7 +49,7 @@ xticksfontsize = default_font_size
 xticksfontweight = 'bold'
 titlefontsize = default_font_size
 titlefontweight = 'bold'
-legendfontsize = 28
+legendfontsize = 14
 legendfontweight = 'bold'
 
 width = 1
@@ -67,16 +67,17 @@ y_min = gp.get_y_min()
 # y_min = 0.001
 # print("Ymax,Ymin", y_max, y_min)
 
-print(y_min, y_max)
+# print(y_min, y_max)
 
 gp.plot(datasets=data_list, labels=labels, hatches=hatches, colors=colors,
-                                                  xlabel=xlabel, ylabel=ylabel, xticks=np.arange(60).tolist(),
-                                                  title=title, xlabelfontsize=xlabelfontsize,
-                                                  xlabelfontweight=xlabelfontweight,
-                                                  ylabelfontsize=ylabelfontsize, ylabelfontweight=ylabelfontweight,
-                                                  yticksfontsize=yticksfontsize, yticksfontweight=yticksfontweight,
-                                                  xticksfontsize=xticksfontsize, xticksfontweight=xticksfontweight,
-                                                  titlefontsize=titlefontsize,
-                                                  titlefontweight=titlefontweight, xtick_positions=xtick_positions,
-                                                  legendfontweight=legendfontweight,
-                                                  legendfontsize=legendfontsize, y_max=y_max)
+        xlabel=xlabel, ylabel=ylabel, xticks=np.arange(13).tolist(),
+        title=title, xtick_positions=xtick_positions,
+        y_max=y_max)
+
+seq1 = pdf[usecols[1]]
+cp = pdf[usecols[2]]
+seq2 = pdf[usecols[3]]
+fc = pdf[usecols[4]]
+new_pdf = pdf.sum()
+
+print(seq1.sum() + cp.sum() + seq2.sum() + fc.sum())
