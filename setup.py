@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="zyplots",  # Replace with your own username
-    version="0.0.2",
+    version="0.0.4",
     author="Vibhatha Abeykoon",
     author_email="vibhatha@gmail.com",
     description="A small plot package",
