@@ -26,14 +26,14 @@ class GraphProcessor:
     def get_xtick_positions(self, num_of_data_types=None):
         xtick_positions = []
         if num_of_data_types % 2 == 0:
-            print("Even number of items per xtick")
+            #print("Even number of items per xtick")
 
             d = 2
             for i in range(0, num_of_data_types):
                 xtick_positions.append(num_of_data_types - d * i)
 
         else:
-            print("Odd number of items per tick")
+            #print("Odd number of items per tick")
             d = 2
             for i in range(0, num_of_data_types):
                 xtick_positions.append(num_of_data_types - d * i)
@@ -61,19 +61,27 @@ class GraphProcessor:
     def plot(self, datasets=None, labels=None, hatches=None,
              colors=None,
              xlabel=None, ylabel=None, xticks=None,
-             title=None, xlabelfontsize=12, xlabelfontweight='medium',
-             ylabelfontsize=12, ylabelfontweight='medium',
-             yticksfontsize=12, yticksfontweight='medium',
-             xticksfontsize=12, xticksfontweight='medium',
-             titlefontsize=12,
+             title=None, xlabelfontsize=26, xlabelfontweight='medium',
+             ylabelfontsize=26, ylabelfontweight='medium',
+             yticksfontsize=26, yticksfontweight='medium',
+             xticksfontsize=26, xticksfontweight='medium',
+             titlefontsize=28,
              titlefontweight='bold',
              xtick_positions=None,
-             legendfontweight='bold', legendfontsize=16,
+             legendfontweight='medium', legendfontsize=22,
              y_max=None,
-             fig_size=(24, 12)):
-        # BLAS
+             fig_size=(24, 14),
+             width=0.25,
+             alpha=0.5,
+             save=False,
+             save_file='',
+             show=True):
+
+        plt.rc('xtick', labelsize=xticksfontsize)
+        plt.rc('ytick', labelsize=yticksfontsize)
+        plt.rc('axes', labelsize=xlabelfontsize)  # , labelweight='bold')
+        plt.rc('legend', fontsize=legendfontsize)
         x = np.arange(len(xticks))
-        print(x)
         fig, ax = plt.subplots(figsize=fig_size)
         # ax.set_yscale('log')
         count = 0
@@ -81,28 +89,24 @@ class GraphProcessor:
         for dataset, label, hatch, color, xtick_pos in zip(datasets, labels, hatches, colors,
                                                            xtick_positions):
             y = dataset
-
-            # the label locations
-            width = 0.16  # the width of the bars
-
             count = count + 1
             rects1 = ax.bar(x + width / 2 * xtick_pos, y, width=width,
-                            label=label, alpha=0.5, color=color, hatch=hatch)
+                            label=label, alpha=alpha, color=color, hatch=hatch)
 
-        # Add some text for labels, title and custom x-axis tick labels, etc.
+
         ax.set_ylabel(ylabel, fontsize=ylabelfontsize, fontweight=ylabelfontweight)
         ax.set_xlabel(xlabel, fontsize=xlabelfontsize, fontweight=xlabelfontweight)
-        ax.set_title(title)
+        ax.set_title(title, fontsize=titlefontsize, fontweight=titlefontweight)
         ax.set_xticks(x)
-        # ax.set_yticks(men_means)
-        # ax.yaxis.set_tick_params(labelsize=10)
         ax.set_xticklabels(xticks, fontsize=xticksfontsize, fontweight=xticksfontweight)
-        # y_max = np.ceil(y_max)
-        # print(y_max)
-        # ax.set_yticklabels(np.linspace(0.0, y_max, num=2*y_max+1), fontsize=yticksfontsize, fontweight=yticksfontweight)
 
-        ax.legend(prop={'size': legendfontsize, 'weight': legendfontweight})
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.07),
+                  fancybox=True, shadow=True, ncol=5, prop={'size': legendfontsize, 'weight': legendfontweight})
+        #ax.legend()
 
         fig.tight_layout()
-
-        plt.show()
+        if save:
+            plt.savefig(save_file)
+        if show:
+            plt.show()
+        plt.close()

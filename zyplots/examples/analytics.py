@@ -1,33 +1,12 @@
 import numpy as np
+import pandas as pd
 
 from zyplots.data.DataLoader import DataLoader
 from zyplots.core.GraphProcessor import GraphProcessor
 from zyplots.util.DataUtil import DataUtil
 
-labels = ['Seq1(Cuda:0)', 'Copy(Cuda:0 -> Cuda:1)', 'Seq2(Cuda:1)', 'FC(Cuda:1)']
-colors = ['green', 'blue', 'orange', 'cyan']
-hatches = ['xx', '###', '---', '+']
-ecolors = ['red', 'red', 'red', 'red']
-xlabel = 'Split Sub Id'
-ylabel = 'Time(s)'
-title = ''
-default_font_size = 14
-xlabelfontsize = default_font_size
-xlabelfontweight = 'bold'
-ylabelfontsize = default_font_size
-ylabelfontweight = 'bold'
-yticksfontsize = default_font_size
-yticksfontweight = 'bold'
-xticksfontsize = default_font_size
-xticksfontweight = 'bold'
-titlefontsize = default_font_size
-titlefontweight = 'bold'
-legendfontsize = 14
-legendfontweight = 'bold'
-
 dtype = {"split_id": int, "seq1_time": float, "c0_c1_copy_time": float, "seq2_time": float, "seq_fc_time": float}
 usecols = ['split_id', 'seq1_time', 'c0_c1_copy_time', 'seq2_time', 'seq_fc_time']
-datacols = ['seq1_time', 'c0_c1_copy_time', 'seq2_time', 'seq_fc_time']
 index_col = False
 
 data_dir_120 = "/home/vibhatha/github/TimelineGraphTool/data/resnet/resnet_split120_timeline_withheaders.csv"
@@ -81,40 +60,43 @@ record_list = [records_120, records_60, records_40, records_30, records_24, reco
 filter_list = [filter_120, filter_60, filter_40, filter_30, filter_24, filter_20, filter_15, filter_12, filter_10,
                filter_8, filter_6]
 
+
 # id = 0
 # data_dir_list = [data_dir_list[id]]
 # record_list = [record_list[id]]
 # filter_list = [filter_list[id]]
 
-for data_dir, record, filter in zip(data_dir_list, record_list, filter_list):
-    data_loader = DataLoader(file_path=data_dir)
+def atomic_analytics():
+    for data_dir, record, filter in zip(data_dir_list, record_list, filter_list):
+        data_loader = DataLoader(file_path=data_dir)
 
-    pdf = data_loader.read_as_pandas()
+        pdf = data_loader.read_as_pandas()
 
-    npy = data_loader.read_as_numpy()
+        seq1 = pdf[usecols[1]]
+        cp = pdf[usecols[2]]
+        seq2 = pdf[usecols[3]]
+        fc = pdf[usecols[4]]
+        new_pdf = pdf.sum()
+        print(seq1.sum() + cp.sum() + seq2.sum() + fc.sum())
 
-    skiprows = DataUtil.get_skiprows(filter=filter, records=record)
 
-    dataframe = data_loader.read_as_pandas_from_columns(columns=usecols, data_types=dtype, filter=skiprows)
+def summary_analytics():
+    dtype = {"split_id": int, "forward_time": float, "copy_time": float, "backward_time": float,
+             "optimization_time": float}
+    usecols = ['split_id', 'forward_time', 'copy_time', 'backward_time', 'optimization_time']
+    data_file = "/home/vibhatha/github/TimelineGraphTool/data/summary/resnet/summary_v1.csv"
+    pdf = pd.read_csv(data_file, usecols=usecols, dtype=dtype)
+    #print(pdf.columns)
+    #print(pdf.head())
+    group_pdf = pdf.groupby(['split_id'])
+    mean_pdf = group_pdf.mean()
 
-    gp = GraphProcessor(dataframe=dataframe, cols=datacols)
+    sum_pdf = mean_pdf.sum(axis=1)
+    print(mean_pdf)
+    print(sum_pdf)
+    mean_pdf['total_time'] = sum_pdf
 
-    data_list = gp.get_data_list()
+    print(mean_pdf)
 
-    num_of_data_types = len(data_list)
 
-    xtick_positions = gp.get_xtick_positions(num_of_data_types=num_of_data_types)
-    y_max = gp.get_y_max()
-    y_min = gp.get_y_min()
-
-    gp.plot(datasets=data_list, labels=labels, hatches=hatches, colors=colors,
-            xlabel=xlabel, ylabel=ylabel, xticks=filter,
-            title="Resnet50 Split "+str(record), xtick_positions=xtick_positions, width=0.20,
-            y_max=y_max, save=True, show=False, save_file="resnet50_split_"+str(record)+".png")
-
-    seq1 = pdf[usecols[1]]
-    cp = pdf[usecols[2]]
-    seq2 = pdf[usecols[3]]
-    fc = pdf[usecols[4]]
-    new_pdf = pdf.sum()
-    print(seq1.sum() + cp.sum() + seq2.sum() + fc.sum())
+summary_analytics()
